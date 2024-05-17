@@ -1,2 +1,2 @@
-# Heart_Attack_Prediction
+# Heart Attack Prediction
 A heart attack classification problem
