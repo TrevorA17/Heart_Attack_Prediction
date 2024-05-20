@@ -94,3 +94,33 @@ central_tendency <- heart_attack_data %>%
   )
 
 print(central_tendency)
+
+# Measures of Distribution
+distribution_measures <- heart_attack_data %>%
+  summarize(
+    var_age = var(age, na.rm = TRUE),
+    sd_age = sd(age, na.rm = TRUE),
+    range_age = range(age, na.rm = TRUE),
+    
+    var_trtbps = var(trtbps, na.rm = TRUE),
+    sd_trtbps = sd(trtbps, na.rm = TRUE),
+    range_trtbps = range(trtbps, na.rm = TRUE),
+    
+    var_chol = var(chol, na.rm = TRUE),
+    sd_chol = sd(chol, na.rm = TRUE),
+    range_chol = range(chol, na.rm = TRUE),
+    
+    var_thalachh = var(thalachh, na.rm = TRUE),
+    sd_thalachh = sd(thalachh, na.rm = TRUE),
+    range_thalachh = range(thalachh, na.rm = TRUE),
+    
+    var_oldpeak = var(oldpeak, na.rm = TRUE),
+    sd_oldpeak = sd(oldpeak, na.rm = TRUE),
+    range_oldpeak = range(oldpeak, na.rm = TRUE),
+    
+    var_o2_saturation = var(o2_saturation, na.rm = TRUE),
+    sd_o2_saturation = sd(o2_saturation, na.rm = TRUE),
+    range_o2_saturation = range(o2_saturation, na.rm = TRUE)
+  )
+
+print(distribution_measures)
