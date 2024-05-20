@@ -124,3 +124,29 @@ distribution_measures <- heart_attack_data %>%
   )
 
 print(distribution_measures)
+
+# Measures of Relationship
+relationship_measures <- heart_attack_data %>%
+  summarize(
+    cor_age_trtbps = cor(age, trtbps, use = "complete.obs"),
+    cor_age_chol = cor(age, chol, use = "complete.obs"),
+    cor_age_thalachh = cor(age, thalachh, use = "complete.obs"),
+    cor_age_oldpeak = cor(age, oldpeak, use = "complete.obs"),
+    cor_age_o2_saturation = cor(age, o2_saturation, use = "complete.obs"),
+    
+    cor_trtbps_chol = cor(trtbps, chol, use = "complete.obs"),
+    cor_trtbps_thalachh = cor(trtbps, thalachh, use = "complete.obs"),
+    cor_trtbps_oldpeak = cor(trtbps, oldpeak, use = "complete.obs"),
+    cor_trtbps_o2_saturation = cor(trtbps, o2_saturation, use = "complete.obs"),
+    
+    cor_chol_thalachh = cor(chol, thalachh, use = "complete.obs"),
+    cor_chol_oldpeak = cor(chol, oldpeak, use = "complete.obs"),
+    cor_chol_o2_saturation = cor(chol, o2_saturation, use = "complete.obs"),
+    
+    cor_thalachh_oldpeak = cor(thalachh, oldpeak, use = "complete.obs"),
+    cor_thalachh_o2_saturation = cor(thalachh, o2_saturation, use = "complete.obs"),
+    
+    cor_oldpeak_o2_saturation = cor(oldpeak, o2_saturation, use = "complete.obs")
+  )
+
+print(relationship_measures)
