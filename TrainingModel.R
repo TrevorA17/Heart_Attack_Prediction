@@ -54,3 +54,28 @@ model <- train(output ~ ., data = train_data, method = "glm", family = "binomial
 
 # Print model performance
 print(model)
+
+# Load necessary libraries
+library(randomForest)
+library(e1071)  # For SVM
+library(caret)
+
+# Define training control
+ctrl <- trainControl(method = "cv", number = 5, verboseIter = TRUE)
+
+# Train Random Forest model
+set.seed(123)
+rf_model <- train(output ~ ., data = heart_attack_data_clean, method = "rf", trControl = ctrl)
+
+# Train Support Vector Machine (SVM) model
+set.seed(123)
+svm_model <- train(output ~ ., data = heart_attack_data_clean, method = "svmRadial", trControl = ctrl)
+
+# Train Logistic Regression model
+set.seed(123)
+logit_model <- train(output ~ ., data = heart_attack_data_clean, method = "glm", family = "binomial", trControl = ctrl)
+
+# Print model results
+print(rf_model)
+print(svm_model)
+print(logit_model)
