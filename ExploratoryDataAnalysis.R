@@ -64,3 +64,33 @@ for (var in categorical_vars) {
   cat("\nFrequencies for", var, ":\n")
   calculate_frequencies(heart_attack_data, var)
 }
+
+# Measures of Central Tendency
+central_tendency <- heart_attack_data %>%
+  summarize(
+    mean_age = mean(age, na.rm = TRUE),
+    median_age = median(age, na.rm = TRUE),
+    mode_age = as.numeric(names(sort(table(age), decreasing = TRUE)[1])),
+    
+    mean_trtbps = mean(trtbps, na.rm = TRUE),
+    median_trtbps = median(trtbps, na.rm = TRUE),
+    mode_trtbps = as.numeric(names(sort(table(trtbps), decreasing = TRUE)[1])),
+    
+    mean_chol = mean(chol, na.rm = TRUE),
+    median_chol = median(chol, na.rm = TRUE),
+    mode_chol = as.numeric(names(sort(table(chol), decreasing = TRUE)[1])),
+    
+    mean_thalachh = mean(thalachh, na.rm = TRUE),
+    median_thalachh = median(thalachh, na.rm = TRUE),
+    mode_thalachh = as.numeric(names(sort(table(thalachh), decreasing = TRUE)[1])),
+    
+    mean_oldpeak = mean(oldpeak, na.rm = TRUE),
+    median_oldpeak = median(oldpeak, na.rm = TRUE),
+    mode_oldpeak = as.numeric(names(sort(table(oldpeak), decreasing = TRUE)[1])),
+    
+    mean_o2_saturation = mean(o2_saturation, na.rm = TRUE),
+    median_o2_saturation = median(o2_saturation, na.rm = TRUE),
+    mode_o2_saturation = as.numeric(names(sort(table(o2_saturation), decreasing = TRUE)[1]))
+  )
+
+print(central_tendency)
