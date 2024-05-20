@@ -30,3 +30,14 @@ heart_attack_data <- heart_attack_data %>%
     thall = factor(thall, levels = c(1, 2, 3), labels = c("normal", "fixed defect", "reversible defect")),
     output = factor(output, levels = c(0, 1), labels = c("less chance of heart attack", "more chance of heart attack"))
   )
+
+# Load necessary library
+library(caret)
+
+# Set seed for reproducibility
+set.seed(123)
+
+# Split the data into training (70%) and testing (30%) sets
+train_index <- createDataPartition(heart_attack_data_clean$output, p = 0.7, list = FALSE)
+train_data <- heart_attack_data_clean[train_index, ]
+test_data <- heart_attack_data_clean[-train_index, ]
