@@ -150,3 +150,30 @@ relationship_measures <- heart_attack_data %>%
   )
 
 print(relationship_measures)
+
+# ANOVA for age across different levels of chest pain type (cp)
+anova_age_cp <- aov(age ~ cp, data = heart_attack_data)
+summary(anova_age_cp)
+
+# ANOVA for cholesterol (chol) across different levels of sex
+anova_chol_sex <- aov(chol ~ sex, data = heart_attack_data)
+summary(anova_chol_sex)
+
+# ANOVA for maximum heart rate achieved (thalachh) across different levels of output
+anova_thalachh_output <- aov(thalachh ~ output, data = heart_attack_data)
+summary(anova_thalachh_output)
+
+# Histogram for Age
+ggplot(heart_attack_data, aes(x = age)) +
+  geom_histogram(binwidth = 5, fill = "blue", color = "black", alpha = 0.7) +
+  labs(title = "Histogram of Age", x = "Age", y = "Frequency")
+
+# Density Plot for Cholesterol
+ggplot(heart_attack_data, aes(x = chol)) +
+  geom_density(fill = "green", alpha = 0.7) +
+  labs(title = "Density Plot of Cholesterol", x = "Cholesterol (mg/dl)", y = "Density")
+
+# Boxplot for Resting Blood Pressure
+ggplot(heart_attack_data, aes(y = trtbps)) +
+  geom_boxplot(fill = "orange", color = "black", alpha = 0.7) +
+  labs(title = "Boxplot of Resting Blood Pressure", y = "Resting Blood Pressure (mm Hg)")
