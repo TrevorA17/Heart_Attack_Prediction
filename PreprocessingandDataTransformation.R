@@ -59,7 +59,7 @@ vis_miss(heart_attack_data) +
 #Remove rows with missing values
 heart_attack_data_clean <- na.omit(heart_attack_data)
 
-# 2. Summary of missing values across the dataset
+#Summary of missing values across the cleaned dataset
 missing_summary <- summary(is.na(heart_attack_data_clean))
 print(missing_summary)
 
