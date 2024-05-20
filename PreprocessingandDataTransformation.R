@@ -55,3 +55,12 @@ library(visdat)
 # Visualize missing values
 vis_miss(heart_attack_data) + 
   labs(title = "Missing Values in Heart Attack Dataset")
+
+#Remove rows with missing values
+heart_attack_data_clean <- na.omit(heart_attack_data)
+
+# 2. Summary of missing values across the dataset
+missing_summary <- summary(is.na(heart_attack_data_clean))
+print(missing_summary)
+
+
