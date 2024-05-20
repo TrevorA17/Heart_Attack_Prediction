@@ -177,3 +177,27 @@ ggplot(heart_attack_data, aes(x = chol)) +
 ggplot(heart_attack_data, aes(y = trtbps)) +
   geom_boxplot(fill = "orange", color = "black", alpha = 0.7) +
   labs(title = "Boxplot of Resting Blood Pressure", y = "Resting Blood Pressure (mm Hg)")
+
+# Scatter Plot of Age vs. Maximum Heart Rate, colored by Chest Pain Type
+ggplot(heart_attack_data, aes(x = age, y = thalachh, color = cp)) +
+  geom_point(alpha = 0.7) +
+  labs(title = "Scatter Plot of Age vs. Maximum Heart Rate", x = "Age", y = "Maximum Heart Rate (thalachh)") +
+  scale_color_discrete(name = "Chest Pain Type")
+
+# Boxplot of Cholesterol by Sex
+ggplot(heart_attack_data, aes(x = sex, y = chol, fill = sex)) +
+  geom_boxplot(alpha = 0.7) +
+  labs(title = "Boxplot of Cholesterol by Sex", x = "Sex", y = "Cholesterol (mg/dl)") +
+  scale_fill_discrete(name = "Sex")
+
+# Pair Plot of Selected Numeric Variables
+# Load GGally library for ggpairs function
+library(GGally)
+
+# Select numeric columns for pair plot
+numeric_columns <- heart_attack_data %>%
+  select(age, trtbps, chol, thalachh, oldpeak, o2_saturation)
+
+# Create pair plot
+ggpairs(numeric_columns, 
+        title = "Pair Plot of Selected Numeric Variables")
