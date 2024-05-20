@@ -41,3 +41,16 @@ set.seed(123)
 train_index <- createDataPartition(heart_attack_data_clean$output, p = 0.7, list = FALSE)
 train_data <- heart_attack_data_clean[train_index, ]
 test_data <- heart_attack_data_clean[-train_index, ]
+
+# Set seed for reproducibility
+set.seed(123)
+
+# Define cross-validation control
+cv <- trainControl(method = "cv", number = 5, verboseIter = TRUE)
+
+# Your modeling code here (e.g., train a model using caret's train function)
+# Example: train a logistic regression model using 5-fold cross-validation
+model <- train(output ~ ., data = train_data, method = "glm", family = "binomial", trControl = cv)
+
+# Print model performance
+print(model)
