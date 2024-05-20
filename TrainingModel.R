@@ -92,3 +92,36 @@ model_resamples <- resamples(models)
 
 # Summarize results
 summary(model_resamples)
+
+# Set seed for reproducibility
+set.seed(123)
+
+# Number of bootstrap iterations
+n_bootstraps <- 1000
+
+# Bootstrap function for age variable
+bootstrap_age <- replicate(n_bootstraps, {
+  # Sample with replacement from the age variable
+  bootstrap_sample <- sample(heart_attack_data_clean$age, replace = TRUE)
+  
+  # Calculate statistic of interest (e.g., mean, median, standard deviation) for each bootstrap sample
+  # Mean and standard deviation
+  mean_age <- mean(bootstrap_sample)
+  sd_age <- sd(bootstrap_sample)
+  
+  return(c(mean_age, sd_age))
+})
+
+# Calculate mean and standard deviation for each bootstrap sample
+bootstrap_stats <- t(bootstrap_age)
+
+# Calculate confidence intervals for mean and standard deviation
+confidence_intervals <- apply(bootstrap_stats, 2, function(stat) {
+  quantile(stat, c(0.025, 0.975))
+})
+
+# Print results
+cat("Bootstrap Mean Age:", mean(bootstrap_stats[, 1]), "\n")
+cat("95% Confidence Interval for Mean Age:", confidence_intervals[1, 1], "-", confidence_intervals[2, 1], "\n")
+cat("Bootstrap Standard Deviation Age:", mean(bootstrap_stats[, 2]), "\n")
+cat("95% Confidence Interval for Standard Deviation Age:", confidence_intervals[1, 2], "-", confidence_intervals[2, 2], "\n")
