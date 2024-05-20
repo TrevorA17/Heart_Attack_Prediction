@@ -79,3 +79,16 @@ logit_model <- train(output ~ ., data = heart_attack_data_clean, method = "glm",
 print(rf_model)
 print(svm_model)
 print(logit_model)
+
+# Load necessary libraries
+library(caret)
+
+# Define resampling method
+ctrl <- trainControl(method = "cv", number = 5, verboseIter = TRUE)
+
+# Compare model performance
+models <- list(rf = rf_model, svm = svm_model, logit = logit_model)
+model_resamples <- resamples(models)
+
+# Summarize results
+summary(model_resamples)
