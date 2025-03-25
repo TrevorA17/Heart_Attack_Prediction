@@ -1,0 +1,459 @@
+---
+title: "Heart Attack Prediction"
+author: "Trevor Okinda"
+date: "2024"
+output:
+  github_document: 
+    toc: yes
+    toc_depth: 4
+    fig_width: 6
+    fig_height: 4
+    df_print: default
+editor_options:
+  chunk_output_type: console
+---
+
+# Student Details
+
+|                                              |     |
+|----------------------------------------------|-----|
+| **Student ID Number**                        | 134780 |
+| **Student Name**                             | Trevor Okinda |
+| **BBIT 4.2 Group**                           | C |
+| **Project Name**                             | Heart Attack Prediction |
+
+# Setup Chunk
+
+**Note:** the following KnitR options have been set as the global defaults: <BR> `knitr::opts_chunk$set(echo = TRUE, warning = FALSE, eval = TRUE, collapse = FALSE, tidy = TRUE)`.
+
+More KnitR options are documented here <https://bookdown.org/yihui/rmarkdown-cookbook/chunk-options.html> and here <https://yihui.org/knitr/options/>.
+
+```{r setup, include=FALSE}
+library(formatR)
+knitr::opts_chunk$set(
+  warning = FALSE,
+  collapse = FALSE
+)
+```
+
+### Source: 
+
+The dataset that was used can be downloaded here: *\<https://www.kaggle.com/datasets/rashikrahmanpritom/heart-attack-analysis-prediction-dataset?select=heart.csv\>*
+
+### Reference:
+
+*\<Avagyan, Z. (2017). Weather CSV [Data set]. Kaggle. https://www.kaggle.com/datasets/zaraavagyan/weathercsv\>\
+Refer to the APA 7th edition manual for rules on how to cite datasets: <https://apastyle.apa.org/style-grammar-guidelines/references/examples/data-set-references>*
+
+# Exploratory Data Analysis
+## Load dataset
+```{r load dataset}
+# Load necessary libraries
+library(tidyverse)
+
+# Load dataset
+heart_attack_data <- read.csv("heart.csv", colClasses = c(
+  age = "numeric",           # Age of the patient
+  sex = "factor",            # Sex of the patient (0 = female, 1 = male)
+  cp = "factor",             # Chest Pain type (1-4)
+  trtbps = "numeric",        # Resting blood pressure (in mm Hg)
+  chol = "numeric",          # Cholesterol in mg/dl
+  fbs = "factor",            # Fasting blood sugar > 120 mg/dl (1 = true, 0 = false)
+  restecg = "factor",        # Resting electrocardiographic results (0-2)
+  thalachh = "numeric",      # Maximum heart rate achieved
+  exng = "factor",           # Exercise induced angina (1 = yes, 0 = no)
+  oldpeak = "numeric",       # Oldpeak
+  slp = "factor",            # Slope of the peak exercise ST segment (0-2)
+  caa = "factor",            # Number of major vessels (0-3)
+  thall = "factor",          # Thall (1-3)
+  o2_saturation = "numeric", # Oxygen saturation
+  output = "factor"          # Target (0 = less chance of heart attack, 1 = more chance of heart attack)
+))
+
+# Convert categorical variables to factors with appropriate labels
+heart_attack_data <- heart_attack_data %>%
+  mutate(
+    sex = factor(sex, levels = c(0, 1), labels = c("female", "male")),
+    cp = factor(cp, levels = c(1, 2, 3, 4), labels = c("typical angina", "atypical angina", "non-anginal pain", "asymptomatic")),
+    fbs = factor(fbs, levels = c(0, 1), labels = c("false", "true")),
+    restecg = factor(restecg, levels = c(0, 1, 2), labels = c("normal", "ST-T wave abnormality", "left ventricular hypertrophy")),
+    exng = factor(exng, levels = c(0, 1), labels = c("no", "yes")),
+    slp = factor(slp, levels = c(0, 1, 2), labels = c("downsloping", "flat", "upsloping")),
+    caa = factor(caa, levels = c(0, 1, 2, 3), labels = c("0", "1", "2", "3")),
+    thall = factor(thall, levels = c(1, 2, 3), labels = c("normal", "fixed defect", "reversible defect")),
+    output = factor(output, levels = c(0, 1), labels = c("less chance of heart attack", "more chance of heart attack"))
+  )
+
+# Display the structure of the dataset
+str(heart_attack_data)
+
+# View the first few rows of the dataset
+head(heart_attack_data)
+
+# View the dataset in a separate viewer window
+View(heart_attack_data)
+```
+
+## Measures of Frequency
+```{r MOF}
+# Function to calculate and print frequency and relative frequency
+calculate_frequencies <- function(data, column) {
+  freq <- table(data[[column]])
+  rel_freq <- prop.table(freq)
+  
+  freq_df <- data.frame(
+    Category = names(freq),
+    Frequency = as.numeric(freq),
+    Relative_Frequency = as.numeric(rel_freq)
+  )
+  
+  print(freq_df)
+}
+
+# Calculate and print frequencies for each categorical variable
+categorical_vars <- c("sex", "cp", "fbs", "restecg", "exng", "slp", "caa", "thall", "output")
+
+for (var in categorical_vars) {
+  cat("\nFrequencies for", var, ":\n")
+  calculate_frequencies(heart_attack_data, var)
+}
+
+```
+
+## Measures of Central Tendency
+```{r MOCT}
+# Measures of Central Tendency
+central_tendency <- heart_attack_data %>%
+  summarize(
+    mean_age = mean(age, na.rm = TRUE),
+    median_age = median(age, na.rm = TRUE),
+    mode_age = as.numeric(names(sort(table(age), decreasing = TRUE)[1])),
+    
+    mean_trtbps = mean(trtbps, na.rm = TRUE),
+    median_trtbps = median(trtbps, na.rm = TRUE),
+    mode_trtbps = as.numeric(names(sort(table(trtbps), decreasing = TRUE)[1])),
+    
+    mean_chol = mean(chol, na.rm = TRUE),
+    median_chol = median(chol, na.rm = TRUE),
+    mode_chol = as.numeric(names(sort(table(chol), decreasing = TRUE)[1])),
+    
+    mean_thalachh = mean(thalachh, na.rm = TRUE),
+    median_thalachh = median(thalachh, na.rm = TRUE),
+    mode_thalachh = as.numeric(names(sort(table(thalachh), decreasing = TRUE)[1])),
+    
+    mean_oldpeak = mean(oldpeak, na.rm = TRUE),
+    median_oldpeak = median(oldpeak, na.rm = TRUE),
+    mode_oldpeak = as.numeric(names(sort(table(oldpeak), decreasing = TRUE)[1])),
+    
+    mean_o2_saturation = mean(o2_saturation, na.rm = TRUE),
+    median_o2_saturation = median(o2_saturation, na.rm = TRUE),
+    mode_o2_saturation = as.numeric(names(sort(table(o2_saturation), decreasing = TRUE)[1]))
+  )
+
+print(central_tendency)
+```
+
+## Measures of Distribution
+```{r MOD}
+# Measures of Distribution
+distribution_measures <- heart_attack_data %>%
+  summarize(
+    var_age = var(age, na.rm = TRUE),
+    sd_age = sd(age, na.rm = TRUE),
+    range_age = range(age, na.rm = TRUE),
+    
+    var_trtbps = var(trtbps, na.rm = TRUE),
+    sd_trtbps = sd(trtbps, na.rm = TRUE),
+    range_trtbps = range(trtbps, na.rm = TRUE),
+    
+    var_chol = var(chol, na.rm = TRUE),
+    sd_chol = sd(chol, na.rm = TRUE),
+    range_chol = range(chol, na.rm = TRUE),
+    
+    var_thalachh = var(thalachh, na.rm = TRUE),
+    sd_thalachh = sd(thalachh, na.rm = TRUE),
+    range_thalachh = range(thalachh, na.rm = TRUE),
+    
+    var_oldpeak = var(oldpeak, na.rm = TRUE),
+    sd_oldpeak = sd(oldpeak, na.rm = TRUE),
+    range_oldpeak = range(oldpeak, na.rm = TRUE),
+    
+    var_o2_saturation = var(o2_saturation, na.rm = TRUE),
+    sd_o2_saturation = sd(o2_saturation, na.rm = TRUE),
+    range_o2_saturation = range(o2_saturation, na.rm = TRUE)
+  )
+
+print(distribution_measures)
+```
+
+## Measures of Relationship
+```{r MOR}
+# Measures of Relationship
+relationship_measures <- heart_attack_data %>%
+  summarize(
+    cor_age_trtbps = cor(age, trtbps, use = "complete.obs"),
+    cor_age_chol = cor(age, chol, use = "complete.obs"),
+    cor_age_thalachh = cor(age, thalachh, use = "complete.obs"),
+    cor_age_oldpeak = cor(age, oldpeak, use = "complete.obs"),
+    cor_age_o2_saturation = cor(age, o2_saturation, use = "complete.obs"),
+    
+    cor_trtbps_chol = cor(trtbps, chol, use = "complete.obs"),
+    cor_trtbps_thalachh = cor(trtbps, thalachh, use = "complete.obs"),
+    cor_trtbps_oldpeak = cor(trtbps, oldpeak, use = "complete.obs"),
+    cor_trtbps_o2_saturation = cor(trtbps, o2_saturation, use = "complete.obs"),
+    
+    cor_chol_thalachh = cor(chol, thalachh, use = "complete.obs"),
+    cor_chol_oldpeak = cor(chol, oldpeak, use = "complete.obs"),
+    cor_chol_o2_saturation = cor(chol, o2_saturation, use = "complete.obs"),
+    
+    cor_thalachh_oldpeak = cor(thalachh, oldpeak, use = "complete.obs"),
+    cor_thalachh_o2_saturation = cor(thalachh, o2_saturation, use = "complete.obs"),
+    
+    cor_oldpeak_o2_saturation = cor(oldpeak, o2_saturation, use = "complete.obs")
+  )
+
+print(relationship_measures)
+```
+
+## ANOVA
+```{r ANOVA}
+# ANOVA for age across different levels of chest pain type (cp)
+anova_age_cp <- aov(age ~ cp, data = heart_attack_data)
+summary(anova_age_cp)
+
+# ANOVA for cholesterol (chol) across different levels of sex
+anova_chol_sex <- aov(chol ~ sex, data = heart_attack_data)
+summary(anova_chol_sex)
+
+# ANOVA for maximum heart rate achieved (thalachh) across different levels of output
+anova_thalachh_output <- aov(thalachh ~ output, data = heart_attack_data)
+summary(anova_thalachh_output)
+```
+
+## Plots
+```{r Plots}
+# Histogram for Age
+ggplot(heart_attack_data, aes(x = age)) +
+  geom_histogram(binwidth = 5, fill = "blue", color = "black", alpha = 0.7) +
+  labs(title = "Histogram of Age", x = "Age", y = "Frequency")
+
+# Density Plot for Cholesterol
+ggplot(heart_attack_data, aes(x = chol)) +
+  geom_density(fill = "green", alpha = 0.7) +
+  labs(title = "Density Plot of Cholesterol", x = "Cholesterol (mg/dl)", y = "Density")
+
+# Boxplot for Resting Blood Pressure
+ggplot(heart_attack_data, aes(y = trtbps)) +
+  geom_boxplot(fill = "orange", color = "black", alpha = 0.7) +
+  labs(title = "Boxplot of Resting Blood Pressure", y = "Resting Blood Pressure (mm Hg)")
+
+# Scatter Plot of Age vs. Maximum Heart Rate, colored by Chest Pain Type
+ggplot(heart_attack_data, aes(x = age, y = thalachh, color = cp)) +
+  geom_point(alpha = 0.7) +
+  labs(title = "Scatter Plot of Age vs. Maximum Heart Rate", x = "Age", y = "Maximum Heart Rate (thalachh)") +
+  scale_color_discrete(name = "Chest Pain Type")
+
+# Boxplot of Cholesterol by Sex
+ggplot(heart_attack_data, aes(x = sex, y = chol, fill = sex)) +
+  geom_boxplot(alpha = 0.7) +
+  labs(title = "Boxplot of Cholesterol by Sex", x = "Sex", y = "Cholesterol (mg/dl)") +
+  scale_fill_discrete(name = "Sex")
+
+# Pair Plot of Selected Numeric Variables
+# Load GGally library for ggpairs function
+library(GGally)
+
+# Select numeric columns for pair plot
+numeric_columns <- heart_attack_data %>%
+  select(age, trtbps, chol, thalachh, oldpeak, o2_saturation)
+
+# Create pair plot
+ggpairs(numeric_columns, 
+        title = "Pair Plot of Selected Numeric Variables")
+
+```
+
+# Preprocessing and Data Transformation
+## Missing Values
+```{r Missing Values}
+# 1. Check for missing values in each column
+missing_values <- colSums(is.na(heart_attack_data))
+print(missing_values)
+
+# 2. Summary of missing values across the dataset
+missing_summary <- summary(is.na(heart_attack_data))
+print(missing_summary)
+
+library(naniar)  # For visualizing missing data
+# 3. Visual representation of missing values
+gg_miss_var(heart_attack_data) + 
+  labs(title = "Missing Values in Heart Attack Dataset", x = "Variables", y = "Number of Missing Values")
+
+# Another visual representation using visdat package
+# Load visdat package
+library(visdat)
+
+# Visualize missing values
+vis_miss(heart_attack_data) + 
+  labs(title = "Missing Values in Heart Attack Dataset")
+
+#Remove rows with missing values
+heart_attack_data_clean <- na.omit(heart_attack_data)
+
+#Summary of missing values across the cleaned dataset
+missing_summary <- summary(is.na(heart_attack_data_clean))
+print(missing_summary)
+```
+
+# Training Model
+## Data Splitting
+```{r Data Splitting}
+# Load necessary library
+library(caret)
+
+# Set seed for reproducibility
+set.seed(123)
+
+# Split the data into training (70%) and testing (30%) sets
+train_index <- createDataPartition(heart_attack_data_clean$output, p = 0.7, list = FALSE)
+train_data <- heart_attack_data_clean[train_index, ]
+test_data <- heart_attack_data_clean[-train_index, ]
+
+# Print the dimensions of the training and testing sets
+cat("Training set dimensions:", dim(train_data), "\n")
+cat("Testing set dimensions:", dim(test_data), "\n")
+```
+
+## Cross-validation
+```{r Cross-validation}
+# Set seed for reproducibility
+set.seed(123)
+
+# Define cross-validation control
+cv <- trainControl(method = "cv", number = 5, verboseIter = TRUE)
+
+# Your modeling code here (e.g., train a model using caret's train function)
+# Example: train a logistic regression model using 5-fold cross-validation
+model <- train(output ~ ., data = train_data, method = "glm", family = "binomial", trControl = cv)
+
+# Print model performance
+print(model)
+```
+
+## Train different models
+```{r Train different models}
+# Load necessary libraries
+library(randomForest)
+library(e1071)  # For SVM
+library(caret)
+
+# Define training control
+ctrl <- trainControl(method = "cv", number = 5, verboseIter = TRUE)
+
+# Train Random Forest model
+set.seed(123)
+rf_model <- train(output ~ ., data = heart_attack_data_clean, method = "rf", trControl = ctrl)
+
+# Train Support Vector Machine (SVM) model
+set.seed(123)
+svm_model <- train(output ~ ., data = heart_attack_data_clean, method = "svmRadial", trControl = ctrl)
+
+# Train Logistic Regression model
+set.seed(123)
+logit_model <- train(output ~ ., data = heart_attack_data_clean, method = "glm", family = "binomial", trControl = ctrl)
+
+# Print model results
+print(rf_model)
+print(svm_model)
+print(logit_model)
+```
+
+## Performance Comparison
+```{r Performance Comparison}
+# Load necessary libraries
+library(caret)
+
+# Define resampling method
+ctrl <- trainControl(method = "cv", number = 5, verboseIter = TRUE)
+
+# Compare model performance
+models <- list(rf = rf_model, svm = svm_model, logit = logit_model)
+model_resamples <- resamples(models)
+
+# Summarize results
+summary(model_resamples)
+```
+
+## Bootstrapping
+```{r Bootstrapping}
+# Set seed for reproducibility
+set.seed(123)
+
+# Number of bootstrap iterations
+n_bootstraps <- 1000
+
+# Bootstrap function for age variable
+bootstrap_age <- replicate(n_bootstraps, {
+  # Sample with replacement from the age variable
+  bootstrap_sample <- sample(heart_attack_data_clean$age, replace = TRUE)
+  
+  # Calculate statistic of interest (e.g., mean, median, standard deviation) for each bootstrap sample
+  # Mean and standard deviation
+  mean_age <- mean(bootstrap_sample)
+  sd_age <- sd(bootstrap_sample)
+  
+  return(c(mean_age, sd_age))
+})
+
+# Calculate mean and standard deviation for each bootstrap sample
+bootstrap_stats <- t(bootstrap_age)
+
+# Calculate confidence intervals for mean and standard deviation
+confidence_intervals <- apply(bootstrap_stats, 2, function(stat) {
+  quantile(stat, c(0.025, 0.975))
+})
+
+# Print results
+cat("Bootstrap Mean Age:", mean(bootstrap_stats[, 1]), "\n")
+cat("95% Confidence Interval for Mean Age:", confidence_intervals[1, 1], "-", confidence_intervals[2, 1], "\n")
+cat("Bootstrap Standard Deviation Age:", mean(bootstrap_stats[, 2]), "\n")
+cat("95% Confidence Interval for Standard Deviation Age:", confidence_intervals[1, 2], "-", confidence_intervals[2, 2], "\n")
+
+```
+
+## Saving Model
+```{r Saving Model}
+
+# Saving the Random Forest model for the heart attack dataset
+saveRDS(rf_model, file = "./models/heart_attack_rf_model.rds")
+
+# Load the saved Random Forest model
+loaded_heart_attack_rf_model <- readRDS("./models/heart_attack_rf_model.rds")
+
+# Prepare new data for prediction (adjusting for factor conversions)
+new_heart_attack_data <- data.frame(
+  age = c(63, 37, 41),   # Example age values
+  sex = factor(c(1, 1, 0), levels = c(0, 1), labels = c("female", "male")),  # Adjusted sex values
+  cp = factor(c(3, 2, 1), levels = c(1, 2, 3, 4), labels = c("typical angina", "atypical angina", "non-anginal pain", "asymptomatic")),  # Adjusted cp values
+  trtbps = c(145, 130, 130),  # Example trtbps values
+  chol = c(233, 250, 204),    # Example chol values
+  fbs = factor(c(1, 0, 0), levels = c(0, 1), labels = c("false", "true")),      # Adjusted fbs values
+  restecg = factor(c(0, 1, 0), levels = c(0, 1, 2), labels = c("normal", "ST-T wave abnormality", "left ventricular hypertrophy")),  # Adjusted restecg values
+  thalachh = c(150, 187, 172),  # Example thalachh values
+  exng = factor(c(0, 0, 0), levels = c(0, 1), labels = c("no", "yes")),     # Adjusted exng values
+  oldpeak = c(2.3, 3.5, 1.4),   # Example oldpeak values
+  slp = factor(c(0, 0, 2), levels = c(0, 1, 2), labels = c("downsloping", "flat", "upsloping")),      # Adjusted slp values
+  caa = factor(c(0, 0, 2), levels = c(0, 1, 2, 3), labels = c("0", "1", "2", "3")),      # Adjusted caa values
+  thall = factor(c(1, 2, 2), levels = c(1, 2, 3), labels = c("normal", "fixed defect", "reversible defect")),    # Adjusted thall values
+  o2_saturation = c(98.6, 98.6, 98.6)  # Example o2_saturation values
+)
+
+# Use the loaded model to make predictions for new heart attack data
+predictions_rf_loaded_model <- predict(loaded_heart_attack_rf_model, newdata = new_heart_attack_data)
+
+# Print predictions
+print(predictions_rf_loaded_model)
+
+
+```
+
